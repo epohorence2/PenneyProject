@@ -1,0 +1,9 @@
+[project]
+name = "rons_game"
+version = "0.1.0"
+description = "A game project"
+authors = [{ name = "Eleanor Pohorence"}]
+dependencies = [
+    "numpy>=2.3.2",
+    "pandas>=2.3.2",
+]
