@@ -1,56 +1,6 @@
 import numpy as np 
 import os 
-from datetime import datetime
-from src.utils import time_and_size
 
-
-class DeckStack: 
-    def __init__(self, num_decks=2_000_000, batch_size=10_000, out_dir="decks", seed=12):
-        self.num_decks = num_decks
-        self.batch_size = batch_size
-        self.out_dir = out_dir
-        self.rng = np.random.default_rng(seed) 
-        os.makedirs(out_dir, exist_ok=True)
-    
-    @time_and_size
-    def generate_and_store_decks(self):
-        """
-        Generate and store shuffled decks of 52 cards with 26 red (0) and 26 black (1) cards
-        """
-        deck = np.array([0] * 26 + [1] * 26)
-        num_batches = self.num_decks // self.batch_size
-
-        for batch_idx in range(num_batches):
-            # Generate a batch of shuffled decks
-            decks = np.empty((self.batch_size, 52), dtype=np.uint8)
-            for i in range(self.batch_size):
-                decks[i] = self.rng.permutation(deck)
-
-            # Save the batch to a file
-            batch_file = os.path.join(self.out_dir, f"decks_batch_{batch_idx + 1}.npy")
-            np.save(batch_file, decks)
-            print(f"Saved batch {batch_idx + 1}/{num_batches} to {batch_file}")
-
-        print("All decks generated and stored.")
-
-    
-deck_stack = DeckStack(num_decks=2_000_000, batch_size=10_000, out_dir="decks", seed=12)
-deck_stack.generate_and_store_decks()
-
-    # def time_and_size(self, func): 
-    #     def decorator(func):
-    #         def wrapper(*args, **kwargs):
-    #             start_time = datetime.now()
-    #             result = func(*args, **kwargs)
-    #             end_time = datetime.now()
-    #             duration = (end_time - start_time).total_seconds()
-    #             size = os.path.getsize(result) if isinstance(result, str) and os.path.exists(result) else None
-    #             print(f"Function '{func.__name__}' executed in {duration:.2f} seconds.")
-    #             if size is not None:
-    #                 print(f"Output file size: {size / (1024 * 1024):.2f} MB.")
-    #             return result
-    #         return wrapper
-    #     return decorator 
 
     # def check_wins(self, deck, sequence):
     #     """

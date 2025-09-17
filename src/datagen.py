@@ -4,8 +4,12 @@ from helpers import PATH_DATA, debugger_factory
 
 HALF_DECK_SIZE = 26
 
-@debugger_factory(show_args=True)
-def get_decks(n_decks: int, seed: int, half_deck_size: int = HALF_DECK_SIZE) -> np.ndarray:
+debug = debugger_factory(show_args=True)
+
+@debug
+def get_decks(n_decks: int, 
+              seed: int, 
+              half_deck_size: int = HALF_DECK_SIZE) -> np.ndarray:
     """
     Efficiently generate `n_decks` shuffled decks using NumPy.
     
@@ -23,39 +27,41 @@ def get_decks(n_decks: int, seed: int, half_deck_size: int = HALF_DECK_SIZE) -> 
     rng.permuted(decks, axis=1, out=decks)
     return decks
 
-@debugger_factory(show_args=True)
-def save_decks_to_batches(decks: np.ndarray, batch_size: int, out_dir: str):
+def save_decks(decks: np.ndarray, 
+               seed: int, 
+               batch_size: int = 100_000,
+               filename: str = "decks_batch.npy"):
     """
-    Save decks to batches in .npy files.
+    Saves decks and the seed used to PATH_DATA.
+    """
+    os.makedirs(PATH_DATA, exist_ok=True)
+    num_batches = (len(decks) + batch_size - 1) // batch_size
+    for i in range(num_batches):
+        batch = decks[i * batch_size:(i + 1) * batch_size]
+        batch_filename = f"{filename}_{i}.npy"
+        batch_path = os.path.join(PATH_DATA, batch_filename)
+        np.save(batch_path, batch)
+        print(f"Saved chunk {i + 1}/{num_batches} to {batch_path}")
     
-    Args:
-        decks (np.ndarray): 2D array of decks to save.
-        batch_size (int): Number of decks per batch file.
-        out_dir (str): Directory to save the batch files.
+    # Save the seed for reproducibility
+    seed_file = os.path.join(PATH_DATA, "decks_seed.npy")
+    np.save(seed_file, np.array([seed], dtype=np.uint64))
+    print(f"Saved seed to {seed_file}")
+
+def load_decks(filename: str = "decks.npy"):
     """
-    os.makedirs(out_dir, exist_ok=True)
-    num_batches = len(decks) // batch_size
-
-    for batch_idx in range(num_batches):
-        start_idx = batch_idx * batch_size
-        end_idx = start_idx + batch_size
-        batch = decks[start_idx:end_idx]
-
-        batch_file = os.path.join(out_dir, f"decks_batch_{batch_idx + 1}.npy")
-        np.save(batch_file, batch)
-        print(f"Saved batch {batch_idx + 1}/{num_batches} to {batch_file}")
-
-    print("All decks generated and stored.")
-
-@debugger_factory(show_args=True)
-def main():
-    num_decks = 2_000_000
-    batch_size = 10_000
-    out_dir = os.path.join(PATH_DATA, "decks")
-    seed = 12
-
-    decks = get_decks(num_decks, seed)
-    save_decks_to_batches(decks, batch_size, out_dir)
+    Loads decks and seed from PATH_DATA.
+    """
+    path = os.path.join(PATH_DATA, filename)
+    decks = np.load(path)
+    seed_file = os.path.join(PATH_DATA, "decks_seed.npy")
+    seed = int(np.load(seed_file)[0])
+    print(f"Loaded decks from {path} with seed {seed}")
+    return decks, seed
 
 if __name__ == "__main__":
-    main()
+    N_DECKS = 2_000_000
+    SEED = 12345 
+
+    decks = get_decks(N_DECKS, SEED)
+    save_decks(decks, SEED)

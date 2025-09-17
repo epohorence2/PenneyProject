@@ -61,7 +61,6 @@ def _data_dir() -> str:
     return data_dir
 
 
-@time_and_size
 def save_seeds(seeds: np.ndarray, filename: str = "seeds.npy") -> str:
     """Save seeds to Card_Game/data and return the saved path."""
     path = os.path.join(_data_dir(), filename)
