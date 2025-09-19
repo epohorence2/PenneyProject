@@ -1,12 +1,13 @@
 import numpy as np
 import os
-from helpers import PATH_DATA, debugger_factory 
+from helpers import PATH_DATA#, debugger_factory
+from utils import time_and_size
 
 HALF_DECK_SIZE = 26
 
-debug = debugger_factory(show_args=True)
+#debug = debugger_factory(show_args=True)
 
-@debug
+@time_and_size
 def get_decks(n_decks: int, 
               seed: int, 
               half_deck_size: int = HALF_DECK_SIZE) -> np.ndarray:
@@ -30,7 +31,7 @@ def get_decks(n_decks: int,
 def save_decks(decks: np.ndarray, 
                seed: int, 
                batch_size: int = 100_000,
-               filename: str = "decks_batch.npy"):
+               filename: str = "decks_batch"):
     """
     Saves decks and the seed used to PATH_DATA.
     """
